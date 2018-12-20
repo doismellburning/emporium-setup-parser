@@ -1,5 +1,6 @@
 from flask import Flask, request
 import setuptools
+import collections
 
 
 app = Flask(__name__)
@@ -18,21 +19,21 @@ def parse():
 
     real_import = __import__
 
+    class FakeThing():
+        def __getattr__(self, name):
+            return FakeThing()
+        def __call__(self, *args, **kwargs):
+            return FakeThing()
+        def __int__(self):
+            return 0
+
     def fake_import(*args, **kwargs):
         if args[0] in ["sys", "setuptools", "tokenize", "time", "io", "os", "codecs", "re"]:
             return real_import(*args, **kwargs)
 
         print(args[0])
 
-        class FakeModule():
-            def __getattr__(self, name):
-                return FakeModule()
-            def __call__(self, *args, **kwargs):
-                return FakeModule()
-            def __int__(self):
-                return 0
-
-        return FakeModule()
+        return FakeThing()
 
 
     def fake_open(*args, **kwargs):
@@ -40,8 +41,9 @@ def parse():
         return io.StringIO("")
 
 
-    setup_locals = locals()
-    setup_globals = globals()
+    setup_locals = collections.defaultdict(FakeThing, locals())
+    setup_locals["__file__"] = ""
+    setup_globals = collections.defaultdict(FakeThing, globals())
     setup_globals["__builtins__"].__import__ = fake_import
     setup_globals["__builtins__"].open = fake_open
 

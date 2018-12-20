@@ -27,6 +27,10 @@ def parse():
             return FakeThing()
         def __int__(self):
             return 0
+        def __enter__(self):
+            return FakeThing()
+        def __exit__(self, *args, **kwargs):
+            pass
 
     def fake_import(*args, **kwargs):
         if args[0] in ["sys", "setuptools", "tokenize", "time", "io", "os", "codecs", "re"]:

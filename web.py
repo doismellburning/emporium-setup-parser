@@ -31,6 +31,8 @@ def parse():
             return FakeThing()
         def __exit__(self, *args, **kwargs):
             pass
+        def __add__(self, other):
+            return other
 
     def fake_import(*args, **kwargs):
         if args[0] in ["sys", "setuptools", "tokenize", "time", "io", "os", "codecs", "re"]:

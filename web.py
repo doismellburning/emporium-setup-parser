@@ -35,12 +35,11 @@ def parse():
             return other
 
     def fake_import(*args, **kwargs):
-        if args[0] in ["sys", "setuptools", "tokenize", "time", "io", "os", "codecs", "re"]:
+        try:
             return real_import(*args, **kwargs)
-
-        print(args[0])
-
-        return FakeThing()
+        except ImportError:
+            print(args[0])
+            return FakeThing()
 
 
     def fake_open(*args, **kwargs):

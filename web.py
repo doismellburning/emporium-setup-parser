@@ -16,6 +16,7 @@ def parse():
         setup_data["tests_require"] = kwargs.get("tests_require")
 
     setuptools.setup = fake_setup
+    setuptools.find_packages = lambda *args, **kwargs: None
 
     real_import = __import__
 

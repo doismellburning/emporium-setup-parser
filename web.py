@@ -16,7 +16,36 @@ def parse():
 
     setuptools.setup = fake_setup
 
-    exec(setuppy)
+    real_import = __import__
+
+    def fake_import(*args, **kwargs):
+        if args[0] in ["sys", "setuptools", "tokenize", "time", "io", "os", "codecs", "re"]:
+            return real_import(*args, **kwargs)
+
+        print(args[0])
+
+        class FakeModule():
+            def __getattr__(self, name):
+                return FakeModule()
+            def __call__(self, *args, **kwargs):
+                return FakeModule()
+            def __int__(self):
+                return 0
+
+        return FakeModule()
+
+
+    def fake_open(*args, **kwargs):
+        import io
+        return io.StringIO("")
+
+
+    setup_locals = locals()
+    setup_globals = globals()
+    setup_globals["__builtins__"].__import__ = fake_import
+    setup_globals["__builtins__"].open = fake_open
+
+    exec(setuppy, setup_globals, setup_locals)
 
     return str(setup_data)
 
